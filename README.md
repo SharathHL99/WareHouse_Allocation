@@ -1,144 +1,333 @@
 # Warehouse Allocation System
 
-An enterprise-level Warehouse Allocation System that manages product distribution across multiple warehouses, ensures optimal stock allocation, prevents over-allocation, and maintains allocation history for audit purposes.
+A Spring Boot REST API that manages product distribution across multiple warehouses. The system automatically allocates products based on stock availability, supports stock transfers between warehouses, prevents over-allocation, and maintains allocation history for auditing.
 
-## Features
+---
 
-- Warehouse CRUD operations (Create, Update, Activate, Deactivate, Soft Delete)
-- Product management
-- Allocation of products to a specific warehouse, or automatic warehouse selection based on available stock
-- Stock transfer between warehouses
-- Capacity validation before allocation
-- Prevention of negative / over-allocation of stock
-- Allocation history tracking with timestamps (audit logging)
-- Search allocations by product, warehouse, and date range
-- Pagination and sorting on list/search endpoints
-- Optimistic locking for concurrent allocation requests
+# Features
 
-## Tech Stack
+- Warehouse Management
+  - Create Warehouse
+  - Update Warehouse
+  - Activate Warehouse
+  - Deactivate Warehouse
+  - Soft Delete Warehouse
 
-- Language/Framework: _(fill in, e.g. Java 17 + Spring Boot 3 / Node.js + Express)_
-- Database: _(fill in, e.g. PostgreSQL / MySQL)_
-- ORM: _(fill in, e.g. Spring Data JPA / Hibernate)_
-- API Docs: Swagger / OpenAPI
-- Testing: _(fill in, e.g. JUnit5 + Mockito)_
-- Build Tool: _(fill in, e.g. Maven / Gradle)_
+- Product Management
+  - Add Product
+  - Update Product
+  - View Products
+  - Delete Product
 
-## Architecture
+- Inventory Management
+  - Maintain warehouse-wise inventory
+  - Update available stock
+  - Stock validation
 
-The project follows a clean layered architecture:
+- Product Allocation
+  - Allocate product to a selected warehouse
+  - Automatic warehouse selection based on available stock
+  - Prevent over-allocation
+  - Capacity validation
+
+- Stock Transfer
+  - Transfer stock between warehouses
+  - Validate available quantity
+  - Update inventories automatically
+
+- Allocation History
+  - Allocation audit trail
+  - Allocation status tracking
+
+- Search & Pagination
+  - Search allocation by Product
+  - Search allocation by Warehouse
+  - Search allocation by Date Range
+  - Pagination
+  - Sorting
+
+- Concurrency Handling
+  - Optimistic Locking using JPA Versioning
+
+---
+
+# Technology Stack
+
+| Technology | Version |
+|------------|---------|
+| Java | 17 |
+| Spring Boot | 3.x |
+| Spring Data JPA | Latest |
+| Hibernate | Latest |
+| MySQL | 8.x |
+| Maven | 3.x |
+| Lombok | Latest |
+| Swagger OpenAPI | springdoc-openapi |
+| JUnit 5 | Latest |
+| Mockito | Latest |
+
+---
+
+# Project Architecture
 
 ```
-Controller Layer → Service Layer → Repository Layer → Database
+                Client
+
+                   │
+
+           REST API Controller
+
+                   │
+
+            Service Layer
+
+                   │
+
+          Repository Layer
+
+                   │
+
+          MySQL Database
 ```
 
-See `Architecture_and_Module_Flow.md` for the full architecture diagram and the allocation workflow breakdown.
+The application follows a layered architecture for better maintainability and separation of concerns.
 
-## Database Schema
+- Controller Layer
+- Service Layer
+- Repository Layer
+- Database Layer
 
-| Table | Key Columns |
-|---|---|
-| Warehouse | id, name, location, capacity, status, created_at |
-| Product | id, name, sku, total_stock |
-| Warehouse_Inventory | id, warehouse_id (FK), product_id (FK), available_quantity, version |
-| Allocation | id, product_id (FK), warehouse_id (FK), quantity, status, allocated_at |
-| Stock_Transfer | id, source_warehouse_id (FK), target_warehouse_id (FK), product_id (FK), quantity, transfer_date |
+---
 
-See `warehouse_allocation_schema.sql` (or equivalent schema script) for the full DDL, and the ER diagram for relationships.
+# Database Tables
 
-## Getting Started
+| Table | Description |
+|---------|-------------|
+| Warehouse | Warehouse details |
+| Product | Product information |
+| Warehouse Inventory | Product stock available in each warehouse |
+| Allocation | Product allocation records |
+| Stock Transfer | Warehouse-to-warehouse stock transfer history |
 
-### Prerequisites
+---
 
-- _(fill in, e.g. JDK 17+, Maven 3.8+, PostgreSQL 14+)_
+# Project Structure
+
+```
+src
+│
+├── main
+│   ├── java
+│   │   ├── controller
+│   │   ├── service
+│   │   ├── serviceimpl
+│   │   ├── repository
+│   │   ├── entity
+│   │   ├── dto
+│   │   ├── exception
+│   │   ├── config
+│   │   └── WarehouseAllocationApplication.java
+│   │
+│   └── resources
+│       ├── application.properties
+│       ├── schema.sql
+│       └── data.sql
+│
+└── test
+    └── java
+```
+
+---
+
+# Getting Started
+
+## Prerequisites
+
+- Java 17
+- Maven
+- MySQL Server
 - Git
+- IntelliJ IDEA / Eclipse
 
-### Setup
+---
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd warehouse-allocation-system
-   ```
+## Clone Repository
 
-2. Configure the database connection:
-   - Update `application.yml` / `.env` with your database URL, username, and password.
-   - Create the database, then run the schema script:
-     ```bash
-     psql -U <user> -d <database> -f warehouse_allocation_schema.sql
-     ```
+```bash
+git clone https://github.com/your-username/warehouse-allocation-system.git
 
-3. Install dependencies and build:
-   ```bash
-   mvn clean install
-   ```
-   _(or `npm install`, depending on stack)_
-
-4. Run the application:
-   ```bash
-   mvn spring-boot:run
-   ```
-   _(or `npm start`)_
-
-5. The API will be available at:
-   ```
-   http://localhost:8080/api/v1
-   ```
-
-### API Documentation
-
-Once running, Swagger UI is available at:
-```
-http://localhost:8080/swagger-ui.html
+cd warehouse-allocation-system
 ```
 
-### Postman Collection
+---
 
-Import `Warehouse_Allocation_System.postman_collection.json` into Postman to explore and test all endpoints, including the negative-test scenarios under "Error Scenarios".
+## Configure Database
 
-## Running Tests
+Create a MySQL database.
+
+```sql
+CREATE DATABASE warehouse_db;
+```
+
+Update the database configuration inside:
+
+```
+src/main/resources/application.properties
+```
+
+Example:
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/warehouse_db
+spring.datasource.username=root
+spring.datasource.password=root
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+```
+
+---
+
+## Build Project
+
+```bash
+mvn clean install
+```
+
+---
+
+## Run Project
+
+```bash
+mvn spring-boot:run
+```
+
+or
+
+Run
+
+```
+WarehouseAllocationApplication.java
+```
+
+from your IDE.
+
+---
+
+# API Base URL
+
+```
+http://localhost:8080/api
+```
+
+---
+
+# Swagger Documentation
+
+After running the application, access Swagger UI:
+
+```
+http://localhost:8080/swagger-ui/index.html
+```
+
+---
+
+# API Modules
+
+## Warehouse APIs
+
+- Create Warehouse
+- Update Warehouse
+- Get Warehouse By Id
+- Get All Warehouses
+- Activate Warehouse
+- Deactivate Warehouse
+- Soft Delete Warehouse
+
+---
+
+## Product APIs
+
+- Create Product
+- Update Product
+- Delete Product
+- Get Product
+- Get All Products
+
+---
+
+## Inventory APIs
+
+- Add Inventory
+- Update Inventory
+- Get Inventory
+
+---
+
+## Allocation APIs
+
+- Allocate Product
+- Auto Allocate Product
+- Cancel Allocation
+- Search Allocation
+- Allocation History
+
+---
+
+## Stock Transfer APIs
+
+- Transfer Stock
+- Transfer History
+
+---
+
+# Testing
+
+Run all unit tests:
 
 ```bash
 mvn test
 ```
 
-Minimum unit test coverage target: **70%**.
+Frameworks used:
 
-## Project Structure
+- JUnit 5
+- Mockito
 
-```
-src/
-├── main/
-│   ├── java/.../controller/     # REST controllers
-│   ├── java/.../service/        # Business logic
-│   ├── java/.../repository/     # Data access layer
-│   ├── java/.../entity/         # Domain entities
-│   ├── java/.../dto/            # Request/response DTOs
-│   ├── java/.../exception/      # Global exception handling
-│   └── resources/
-│       └── application.yml
-└── test/
-    └── java/.../                # Unit tests
-```
+---
 
-## Key Design Decisions
+# Design Highlights
 
-See `Assumptions_and_Design_Decisions.md` for detailed notes, including:
-- Optimistic locking strategy for concurrent allocation requests
-- Automatic warehouse selection algorithm
-- Soft delete approach for warehouses
-- Error handling and audit logging strategy
+- Layered Architecture
+- DTO Pattern
+- Global Exception Handling
+- Optimistic Locking
+- Automatic Warehouse Selection
+- Soft Delete
+- Capacity Validation
+- Audit Logging
+- Pagination and Sorting
 
-## Deliverables Checklist
+---
 
-- [x] Complete Source Code
-- [x] Database Schema Script
-- [x] Swagger Documentation
-- [x] Postman Collection
-- [x] Unit Test Cases
-- [x] README (this file)
-- [x] Assumptions & Design Decisions document
+# Future Enhancements
 
-## License
+- JWT Authentication
+- Role-Based Authorization
+- Email Notifications
+- Dashboard
+- Inventory Reports
+- Docker Support
+- CI/CD Pipeline
 
-_(fill in license, e.g. MIT)_
+---
+
+# Author
+
+**Sharath H L**
+
+---
+
+# License
+
+This project is developed for learning and educational purposes.
