@@ -1,7 +1,7 @@
 # Warehouse Allocation System – Architecture & Module Flow
 
 ## 1. Layered Architecture
-
+ 
 The system follows a clean layered architecture, where each layer only communicates with the layer directly below it.
 
 ```
